@@ -139,7 +139,7 @@ function buildHeader(activePage='') {
   <header class="header">
     <div class="header-top">🚚 Free shipping on orders above <span>₹999</span> | Use code <span>SAVE20</span> for 20% off!</div>
     <div class="header-main">
-      <a href="index.html" class="logo"><div class="logo-icon">🛍</div>Shop<span>Wave</span></a>
+      <a href="index.html" class="logo"><div class="logo-icon"><img src="AIGrowmatics_logo.png" alt="AIGrowmatics logo"></div></a>
       <div class="search-bar">
         <input type="text" placeholder="Search for products, brands and more..." id="searchInput" onkeydown="handleSearch(event)">
         <button onclick="goSearch()">🔍</button>
@@ -165,7 +165,7 @@ function buildFooter() {
   <footer class="footer">
     <div class="footer-grid">
       <div class="footer-brand">
-        <a href="index.html" class="logo" style="color:white"><div class="logo-icon">🛍</div>Shop<span style="color:var(--accent)">Wave</span></a>
+        <a href="index.html" class="logo" style="color:white"><div class="logo-icon"><img src="AIGrowmatics_logo.png" alt="AIGrowmatics logo"></div></a>
         <p>Your one-stop destination for quality products at unbeatable prices. Shop with confidence with our secure payment gateway and easy returns.</p>
         <div class="footer-social">
           <div class="social-btn" title="Facebook">📘</div>
@@ -197,8 +197,8 @@ function buildFooter() {
       <div>
         <div class="footer-heading">Contact</div>
         <ul class="footer-links">
-          <li><a href="#">📧 support@shopwave.in</a></li>
-          <li><a href="#">📞 1800-123-4567</a></li>
+          <li><a href="#">📧 support@aigrowmatics.com</a></li>
+          <li><a href="#">📞 0000-000-0000</a></li>
           <li><a href="#">📍 Bengaluru, India</a></li>
           <li><a href="#">Privacy Policy</a></li>
           <li><a href="#">Terms of Service</a></li>
@@ -206,7 +206,7 @@ function buildFooter() {
       </div>
     </div>
     <div class="footer-bottom">
-      <p>© 2025 ShopWave. All rights reserved. | Powered by passion & code.</p>
+      <p>© 2026 AIGROWMATICS. All rights reserved. | Powered by passion & code.</p>
       <p style="margin-top:8px">💳 We accept: Visa • MasterCard • UPI • Net Banking • Wallets</p>
     </div>
   </footer>`;
