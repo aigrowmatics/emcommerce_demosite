@@ -165,7 +165,7 @@ function buildFooter() {
   <footer class="footer">
     <div class="footer-grid">
       <div class="footer-brand">
-        <a href="index.html" class="logo" style="color:white"><div class="logo-icon"><img src="AIGrowmatics_logo.jpg" "></div></span></a>
+        <a href="index.html" class="logo" style="color:white"><div class="logo-icon"><img src="AIGrowmatics_logo.jpg"></div></span></a>
         <p>Your one-stop destination for quality products at unbeatable prices. Shop with confidence with our secure payment gateway and easy returns.</p>
         <div class="footer-social">
           <div class="social-btn" title="Facebook">📘</div>
