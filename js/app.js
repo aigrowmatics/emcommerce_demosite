@@ -139,7 +139,7 @@ function buildHeader(activePage='') {
   <header class="header">
     <div class="header-top">🚚 Free shipping on orders above <span>₹999</span> | Use code <span>SAVE20</span> for 20% off!</div>
     <div class="header-main">
-      <a href="index.html" class="logo"><div class="logo-icon"><img src="AIGrowmatics_logo.jpg" ></div><span class="text-xl font-bold tracking-tight">AIGrow<span class="text-indigo-600">matics</span></span></a>
+      <a href="index.html" class="logo"><div class="logo-icon"><img src="AIGrowmatics_logo.jpg"></div></a>
       <div class="search-bar">
         <input type="text" placeholder="Search for products, brands and more..." id="searchInput" onkeydown="handleSearch(event)">
         <button onclick="goSearch()">🔍</button>
@@ -165,7 +165,7 @@ function buildFooter() {
   <footer class="footer">
     <div class="footer-grid">
       <div class="footer-brand">
-        <a href="index.html" class="logo" style="color:white"><div class="logo-icon"><img src="AIGrowmatics_logo.png" alt="AIGrowmatics logo"></div><span class="text-xl font-bold tracking-tight">AIGrow<span class="text-indigo-600">matics</span></span></a>
+        <a href="index.html" class="logo" style="color:white"><div class="logo-icon"><img src="AIGrowmatics_logo.png" "></div></span></a>
         <p>Your one-stop destination for quality products at unbeatable prices. Shop with confidence with our secure payment gateway and easy returns.</p>
         <div class="footer-social">
           <div class="social-btn" title="Facebook">📘</div>
