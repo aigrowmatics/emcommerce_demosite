@@ -22,12 +22,7 @@
     <aside class="filter-sidebar" id="filterSidebar">
       <div class="filter-card">
         <div class="filter-title">Categories <button onclick="clearFilters()" style="font-size:12px;color:var(--accent);background:none;border:none;cursor:pointer;font-weight:600">Clear All</button></div>
-        <div id="categoryFilters">
-          ${['Electronics','Fashion','Sports','Home','Beauty','Books'].map(c => `
-          <label class="filter-option">
-            <input type="checkbox" value="${c}" onchange="applyFilters()"> ${c}
-          </label>`).join('')}
-        </div>
+        <div id="categoryFilters"></div>
       </div>
 
       <div class="filter-card">
@@ -40,21 +35,12 @@
 
       <div class="filter-card">
         <div class="filter-title">Brand</div>
-        <div id="brandFilters">
-          ${[...new Set(PRODUCTS.map(p=>p.brand))].map(b => `
-          <label class="filter-option">
-            <input type="checkbox" value="${b}" onchange="applyFilters()"> ${b}
-          </label>`).join('')}
-        </div>
+        <div id="brandFilters"></div>
       </div>
 
       <div class="filter-card">
         <div class="filter-title">Rating</div>
-        ${[4,3,2,1].map(r => `
-        <label class="filter-option">
-          <input type="radio" name="rating" value="${r}" onchange="applyFilters()">
-          ${'★'.repeat(r)}${'☆'.repeat(5-r)} & above
-        </label>`).join('')}
+        <div id="ratingFilters"></div>
       </div>
 
       <div class="filter-card">
@@ -111,6 +97,8 @@ document.getElementById('header-placeholder').innerHTML = buildHeader('Products'
 document.getElementById('footer-placeholder').innerHTML = buildFooter();
 document.getElementById('filterToggle').style.display = 'flex';
 
+renderSidebarFilters();
+
 const params = new URLSearchParams(window.location.search);
 const initCat = params.get('cat');
 const initQ = params.get('q');
@@ -118,7 +106,25 @@ const initSort = params.get('sort');
 let currentPage = 1;
 const PER_PAGE = 8;
 
-// Set title based on query
+function renderSidebarFilters() {
+  const categories = ['Electronics','Fashion','Sports','Home','Beauty','Books'];
+  document.getElementById('categoryFilters').innerHTML = categories.map(c => `
+    <label class="filter-option">
+      <input type="checkbox" value="${c}" onchange="applyFilters()"> ${c}
+    </label>`).join('');
+
+  document.getElementById('brandFilters').innerHTML = [...new Set(PRODUCTS.map(p => p.brand))].map(b => `
+    <label class="filter-option">
+      <input type="checkbox" value="${b}" onchange="applyFilters()"> ${b}
+    </label>`).join('');
+
+  document.getElementById('ratingFilters').innerHTML = [4,3,2,1].map(r => `
+    <label class="filter-option">
+      <input type="radio" name="rating" value="${r}" onchange="applyFilters()">
+      ${'★'.repeat(r)}${'☆'.repeat(5-r)} & above
+    </label>`).join('');
+}
+
 if (initCat) {
   document.getElementById('pageTitle').textContent = initCat;
   document.getElementById('breadCrumb').textContent = initCat;
