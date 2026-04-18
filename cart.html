@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cart – ShopWave</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div id="header-placeholder"></div>
+
+<div class="page-header">
+  <div class="container">
+    <h1>Shopping Cart</h1>
+    <div class="breadcrumb"><a href="index.html">Home</a> › Cart</div>
+  </div>
+</div>
+
+<div class="container">
+  <div class="cart-layout" id="cartLayout">
+    <!-- Cart items and summary injected by JS -->
+  </div>
+</div>
+
+<div id="footer-placeholder"></div>
+
+<script src="js/app.js"></script>
+<script>
+document.getElementById('header-placeholder').innerHTML = buildHeader();
+document.getElementById('footer-placeholder').innerHTML = buildFooter();
+
+let appliedCoupon = null;
+const COUPONS = { 'SAVE20': 20, 'FLAT10': 10, 'WELCOME15': 15 };
+
+function renderCart() {
+  const layout = document.getElementById('cartLayout');
+  if (!Cart.items.length) {
+    layout.innerHTML = `
+      <div style="grid-column:1/-1">
+        <div class="empty-state">
+          <div class="empty-state-icon">🛒</div>
+          <h3>Your cart is empty!</h3>
+          <p>Looks like you haven't added anything yet. Let's change that!</p>
+          <a href="products.html" class="btn btn-primary btn-lg">Start Shopping</a>
+        </div>
+      </div>`;
+    return;
+  }
+
+  const subtotal = Cart.getTotal();
+  const shipping = subtotal >= 999 ? 0 : 99;
+  const taxes = Math.round(subtotal * 0.18);
+  const discount = appliedCoupon ? Math.round(subtotal * COUPONS[appliedCoupon] / 100) : 0;
+  const total = subtotal + shipping + taxes - discount;
+
+  layout.innerHTML = `
+    <div>
+      <!-- Cart Header -->
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 24px;border-bottom:2px solid var(--gray-200);margin-bottom:0">
+        <h3 style="font-size:1.1rem">${Cart.getCount()} Item${Cart.getCount()!==1?'s':''} in Cart</h3>
+        <button class="btn btn-ghost btn-sm" onclick="if(confirm('Clear all items?')){Cart.clear();renderCart();}">🗑 Clear All</button>
+      </div>
+      
+      <div class="cart-items">
+        ${Cart.items.map(item => {
+          const product = PRODUCTS.find(p => p.id === item.productId);
+          return `
+          <div class="cart-item" data-key="${item.key}">
+            <div class="cart-item-img">
+              <img src="${item.image}" alt="${item.name}">
+            </div>
+            <div>
+              <div class="cart-item-name">${item.name}</div>
+              ${item.variant ? `<div class="cart-item-variant">Variant: ${item.variant}</div>` : ''}
+              <div class="cart-item-price">${formatPrice(item.price)}</div>
+              <div style="display:flex;align-items:center;gap:12px;margin-top:12px">
+                <div class="qty-selector" style="transform:scale(0.85);transform-origin:left">
+                  <button class="qty-btn" onclick="updateItemQty('${item.key}',-1)">−</button>
+                  <input type="number" class="qty-input" value="${item.qty}" min="1" style="width:48px" onchange="Cart.updateQty('${item.key}',parseInt(this.value));renderCart()">
+                  <button class="qty-btn" onclick="updateItemQty('${item.key}',1)">+</button>
+                </div>
+                <button class="remove-btn" onclick="removeItem('${item.key}')">🗑 Remove</button>
+                <button class="btn btn-ghost btn-sm" onclick="Wishlist.toggle(${item.productId});Toast.show('Saved to wishlist ❤️','success')">❤️ Save for Later</button>
+              </div>
+            </div>
+            <div class="cart-item-subtotal">
+              <div style="font-family:var(--font-display);font-weight:800;font-size:1.1rem">${formatPrice(item.price * item.qty)}</div>
+              ${item.qty > 1 ? `<div style="font-size:12px;color:var(--gray-400)">${formatPrice(item.price)} × ${item.qty}</div>` : ''}
+            </div>
+          </div>`;
+        }).join('')}
+      </div>
+
+      <!-- Recently Viewed -->
+      <div style="margin-top:32px">
+        <h3 style="margin-bottom:20px">You Might Also Like</h3>
+        <div class="products-grid" style="grid-template-columns:repeat(3,1fr)">
+          ${PRODUCTS.slice(0,3).map(p=>renderProductCard(p)).join('')}
+        </div>
+      </div>
+    </div>
+
+    <!-- ORDER SUMMARY -->
+    <div>
+      <div class="order-summary">
+        <h3>Order Summary</h3>
+        
+        <div class="coupon-row">
+          <input type="text" placeholder="Enter coupon code" id="couponInput" style="text-transform:uppercase" value="${appliedCoupon||''}">
+          <button class="btn btn-outline btn-sm" onclick="applyCoupon()">Apply</button>
+        </div>
+        ${appliedCoupon ? `<div style="color:var(--success);font-size:13px;margin-bottom:16px">✅ Coupon ${appliedCoupon} applied — ${COUPONS[appliedCoupon]}% off!</div>` : '<div style="font-size:12px;color:var(--gray-400);margin-bottom:16px">Try: SAVE20 · FLAT10 · WELCOME15</div>'}
+
+        <div class="summary-row">
+          <span>Subtotal (${Cart.getCount()} items)</span>
+          <span>${formatPrice(subtotal)}</span>
+        </div>
+        ${discount ? `<div class="summary-row" style="color:var(--success)">
+          <span>Coupon Discount (${COUPONS[appliedCoupon]}%)</span>
+          <span>−${formatPrice(discount)}</span>
+        </div>` : ''}
+        <div class="summary-row">
+          <span>Shipping</span>
+          <span>${shipping===0?'<span style="color:var(--success)">FREE</span>':formatPrice(shipping)}</span>
+        </div>
+        <div class="summary-row">
+          <span>Taxes (18% GST)</span>
+          <span>${formatPrice(taxes)}</span>
+        </div>
+        <div class="summary-row total">
+          <span>Total Amount</span>
+          <span style="color:var(--accent)">${formatPrice(total)}</span>
+        </div>
+
+        ${subtotal < 999 ? `<div style="background:#fff3cd;border-radius:var(--radius-sm);padding:12px;font-size:13px;margin-bottom:16px;color:#856404">
+          🚚 Add ${formatPrice(999-subtotal)} more for FREE delivery!
+        </div>` : `<div style="background:#d8f3dc;border-radius:var(--radius-sm);padding:12px;font-size:13px;margin-bottom:16px;color:var(--success)">
+          🎉 You've unlocked FREE delivery!
+        </div>`}
+
+        <a href="checkout.html" class="btn btn-primary" style="width:100%;justify-content:center;margin-bottom:12px;font-size:15px">
+          Proceed to Checkout →
+        </a>
+        <a href="products.html" class="btn btn-ghost" style="width:100%;justify-content:center;font-size:14px">
+          ← Continue Shopping
+        </a>
+
+        <div style="text-align:center;margin-top:20px;font-size:12px;color:var(--gray-400)">
+          🔐 Secure checkout powered by Razorpay<br>
+          💳 Visa • MasterCard • UPI • Net Banking
+        </div>
+      </div>
+    </div>`;
+}
+
+function removeItem(key) {
+  Cart.remove(key);
+  renderCart();
+}
+function updateItemQty(key, delta) {
+  const item = Cart.items.find(i => i.key === key);
+  if (item) { Cart.updateQty(key, item.qty + delta); renderCart(); }
+}
+function applyCoupon() {
+  const code = document.getElementById('couponInput').value.trim().toUpperCase();
+  if (COUPONS[code]) {
+    appliedCoupon = code;
+    Toast.show(`Coupon ${code} applied! ${COUPONS[code]}% discount 🎉`, 'success');
+    renderCart();
+  } else {
+    Toast.show('Invalid coupon code', 'error');
+  }
+}
+
+renderCart();
+</script>
+</body>
+</html>

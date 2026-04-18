@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Account – ShopWave</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body style="background:var(--gray-100)">
+<div id="header-placeholder"></div>
+
+<div class="auth-container">
+  <div class="auth-card" id="authCard">
+    <div class="auth-logo">
+      <a href="index.html" class="logo" style="justify-content:center;font-size:2rem"><div class="logo-icon" style="width:44px;height:44px;font-size:22px">🛍</div>Shop<span>Wave</span></a>
+      <p style="color:var(--gray-600);font-size:14px;margin-top:8px">Your premium shopping destination</p>
+    </div>
+
+    <div class="auth-tabs">
+      <button class="auth-tab active" onclick="switchAuthTab('login',this)">Login</button>
+      <button class="auth-tab" onclick="switchAuthTab('register',this)">Register</button>
+    </div>
+
+    <!-- LOGIN FORM -->
+    <div id="loginForm">
+      <div class="social-login">
+        <button class="social-login-btn" onclick="socialLogin('Google')">
+          <span style="font-size:18px">G</span> Continue with Google
+        </button>
+        <button class="social-login-btn" onclick="socialLogin('Facebook')">
+          <span style="font-size:18px">f</span> Facebook
+        </button>
+      </div>
+      <div class="divider">or login with email</div>
+
+      <div class="form-group">
+        <label class="form-label">Email Address</label>
+        <input type="email" class="form-input" placeholder="you@example.com" id="loginEmail">
+      </div>
+      <div class="form-group">
+        <label class="form-label" style="display:flex;justify-content:space-between">
+          Password
+          <a href="#" onclick="showForgotPassword()" style="color:var(--accent);font-weight:400;font-size:12px">Forgot password?</a>
+        </label>
+        <div style="position:relative">
+          <input type="password" class="form-input" placeholder="Enter your password" id="loginPassword">
+          <button onclick="togglePwd('loginPassword')" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--gray-400);font-size:16px">👁</button>
+        </div>
+      </div>
+      <label style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--gray-600);margin-bottom:20px;cursor:pointer">
+        <input type="checkbox" style="accent-color:var(--accent)"> Remember me for 30 days
+      </label>
+      <button class="btn btn-primary" style="width:100%;justify-content:center;padding:14px;font-size:15px" onclick="handleLogin()">
+        Login to ShopWave
+      </button>
+    </div>
+
+    <!-- REGISTER FORM -->
+    <div id="registerForm" style="display:none">
+      <div class="social-login">
+        <button class="social-login-btn" onclick="socialLogin('Google')">
+          <span style="font-size:18px">G</span> Sign up with Google
+        </button>
+      </div>
+      <div class="divider">or create account</div>
+
+      <div class="form-grid" style="gap:12px">
+        <div class="form-group">
+          <label class="form-label">First Name</label>
+          <input type="text" class="form-input" placeholder="John" id="regFirstName">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Last Name</label>
+          <input type="text" class="form-input" placeholder="Doe" id="regLastName">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Email Address</label>
+        <input type="email" class="form-input" placeholder="you@example.com" id="regEmail">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Phone Number</label>
+        <input type="tel" class="form-input" placeholder="+91 98765 43210" id="regPhone">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Password</label>
+        <div style="position:relative">
+          <input type="password" class="form-input" placeholder="Min 8 characters" id="regPassword" oninput="checkStrength()">
+          <button onclick="togglePwd('regPassword')" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--gray-400);font-size:16px">👁</button>
+        </div>
+        <div id="strengthBar" style="height:4px;background:var(--gray-200);border-radius:2px;margin-top:6px;overflow:hidden">
+          <div id="strengthFill" style="height:100%;width:0%;transition:all 0.3s;background:var(--accent)"></div>
+        </div>
+        <div id="strengthText" style="font-size:11px;color:var(--gray-400);margin-top:4px"></div>
+      </div>
+      <label style="display:flex;align-items:flex-start;gap:8px;font-size:13px;color:var(--gray-600);margin-bottom:20px;cursor:pointer">
+        <input type="checkbox" style="accent-color:var(--accent);margin-top:2px" id="termsCheck"> 
+        I agree to the <a href="#" style="color:var(--accent)">Terms of Service</a> and <a href="#" style="color:var(--accent)">Privacy Policy</a>
+      </label>
+      <button class="btn btn-primary" style="width:100%;justify-content:center;padding:14px;font-size:15px" onclick="handleRegister()">
+        Create Account →
+      </button>
+    </div>
+
+    <!-- FORGOT PASSWORD (hidden) -->
+    <div id="forgotForm" style="display:none">
+      <h3 style="margin-bottom:8px">Reset Password</h3>
+      <p style="color:var(--gray-600);font-size:14px;margin-bottom:24px">Enter your email and we'll send you a reset link.</p>
+      <div class="form-group">
+        <label class="form-label">Email Address</label>
+        <input type="email" class="form-input" placeholder="you@example.com" id="forgotEmail">
+      </div>
+      <button class="btn btn-primary" style="width:100%;justify-content:center;padding:14px" onclick="sendResetLink()">Send Reset Link</button>
+      <button class="btn btn-ghost" style="width:100%;justify-content:center;margin-top:8px" onclick="showForgotPassword(false)">← Back to Login</button>
+    </div>
+  </div>
+</div>
+
+<!-- ACCOUNT DASHBOARD (if logged in) -->
+<div id="accountDashboard" style="display:none">
+  <div class="page-header">
+    <div class="container">
+      <h1>My Account</h1>
+    </div>
+  </div>
+  <div class="container" style="padding:48px 24px">
+    <div style="display:grid;grid-template-columns:240px 1fr;gap:32px">
+      <!-- Sidebar -->
+      <div>
+        <div style="background:white;border-radius:var(--radius-lg);padding:24px;text-align:center;border:1px solid var(--gray-200);margin-bottom:16px">
+          <div style="width:72px;height:72px;background:var(--accent);border-radius:50%;margin:0 auto 12px;display:flex;align-items:center;justify-content:center;color:white;font-size:28px;font-family:var(--font-display);font-weight:700" id="avatarInitial">R</div>
+          <div style="font-family:var(--font-display);font-weight:700;font-size:16px" id="userNameDisplay">Rahul Kumar</div>
+          <div style="font-size:13px;color:var(--gray-600)" id="userEmailDisplay">rahul@example.com</div>
+          <div class="badge badge-gold" style="margin-top:8px">⭐ Gold Member</div>
+        </div>
+        <div style="background:white;border-radius:var(--radius-lg);border:1px solid var(--gray-200);overflow:hidden">
+          ${['📦 My Orders','❤️ Wishlist','📍 Saved Addresses','👤 Profile Settings','🔔 Notifications','🔐 Change Password','🚪 Logout'].map((item,i) => 
+            `<div onclick="switchDashTab(${i})" class="admin-nav-item" style="border-radius:0;border-bottom:1px solid var(--gray-100);color:var(--gray-800);${i===6?'color:var(--accent)':''}" id="dtab-${i}">${item}</div>`
+          ).join('')}
+        </div>
+      </div>
+      <!-- Content -->
+      <div id="dashContent">
+        <!-- Orders tab default -->
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="footer-placeholder"></div>
+
+<script src="js/app.js"></script>
+<script>
+document.getElementById('header-placeholder').innerHTML = buildHeader();
+document.getElementById('footer-placeholder').innerHTML = buildFooter();
+
+// Check if user is logged in
+const user = JSON.parse(localStorage.getItem('shopwave_user') || 'null');
+if (user) {
+  document.querySelector('.auth-container').style.display = 'none';
+  document.getElementById('accountDashboard').style.display = 'block';
+  document.getElementById('avatarInitial').textContent = user.name[0];
+  document.getElementById('userNameDisplay').textContent = user.name;
+  document.getElementById('userEmailDisplay').textContent = user.email;
+  switchDashTab(0);
+}
+
+function switchAuthTab(tab, btn) {
+  document.querySelectorAll('.auth-tab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('loginForm').style.display = tab==='login'?'block':'none';
+  document.getElementById('registerForm').style.display = tab==='register'?'block':'none';
+  document.getElementById('forgotForm').style.display = 'none';
+}
+
+function showForgotPassword(show=true) {
+  document.getElementById('loginForm').style.display = show?'none':'block';
+  document.getElementById('forgotForm').style.display = show?'block':'none';
+}
+
+function togglePwd(id) {
+  const input = document.getElementById(id);
+  input.type = input.type==='password'?'text':'password';
+}
+
+function checkStrength() {
+  const pwd = document.getElementById('regPassword').value;
+  let score = 0;
+  if (pwd.length >= 8) score++;
+  if (/[A-Z]/.test(pwd)) score++;
+  if (/[0-9]/.test(pwd)) score++;
+  if (/[^A-Za-z0-9]/.test(pwd)) score++;
+  const colors = ['var(--accent)','orange','#f4a261','var(--success)'];
+  const labels = ['Weak','Fair','Good','Strong'];
+  document.getElementById('strengthFill').style.width = (score*25)+'%';
+  document.getElementById('strengthFill').style.background = colors[score-1]||'var(--gray-200)';
+  document.getElementById('strengthText').textContent = score>0?(labels[score-1]+' password'):'';
+}
+
+function handleLogin() {
+  const email = document.getElementById('loginEmail').value;
+  const pwd = document.getElementById('loginPassword').value;
+  if (!email || !pwd) { Toast.show('Please fill all fields','error'); return; }
+  if (!email.includes('@')) { Toast.show('Invalid email address','error'); return; }
+  // Simulate login
+  const userData = { name: email.split('@')[0].replace(/[^a-zA-Z]/g,' ').trim() || 'User', email };
+  localStorage.setItem('shopwave_user', JSON.stringify(userData));
+  Toast.show('Welcome back! 👋', 'success');
+  setTimeout(() => location.reload(), 1000);
+}
+
+function handleRegister() {
+  const firstName = document.getElementById('regFirstName').value;
+  const email = document.getElementById('regEmail').value;
+  const pwd = document.getElementById('regPassword').value;
+  const terms = document.getElementById('termsCheck').checked;
+  if (!firstName || !email || !pwd) { Toast.show('Please fill all required fields','error'); return; }
+  if (pwd.length < 8) { Toast.show('Password must be at least 8 characters','error'); return; }
+  if (!terms) { Toast.show('Please accept the Terms & Privacy Policy','error'); return; }
+  const userData = { name: firstName + ' ' + document.getElementById('regLastName').value, email };
+  localStorage.setItem('shopwave_user', JSON.stringify(userData));
+  Toast.show('Account created successfully! 🎉', 'success');
+  setTimeout(() => location.reload(), 1000);
+}
+
+function socialLogin(provider) {
+  const userData = { name: 'Demo User', email: `demo@${provider.toLowerCase()}.com` };
+  localStorage.setItem('shopwave_user', JSON.stringify(userData));
+  Toast.show(`Signed in with ${provider}! 🎉`, 'success');
+  setTimeout(() => location.reload(), 1000);
+}
+
+function sendResetLink() {
+  const email = document.getElementById('forgotEmail').value;
+  if (!email.includes('@')) { Toast.show('Invalid email','error'); return; }
+  Toast.show('Reset link sent to your email! Check inbox.', 'success');
+  showForgotPassword(false);
+}
+
+const MOCK_ORDERS = [
+  { id:'SW20240101', date:'Jan 1, 2025', status:'delivered', items:2, total:3798, product:'Premium Wireless Headphones', tracking:'IND123456789' },
+  { id:'SW20240202', date:'Feb 2, 2025', status:'shipped', items:1, total:5999, product:'Smart Fitness Watch', tracking:'IND987654321' },
+  { id:'SW20240303', date:'Mar 3, 2025', status:'processing', items:3, total:2497, product:'Running Shorts Pro + Yoga Mat', tracking:null },
+];
+
+function switchDashTab(i) {
+  document.querySelectorAll('[id^="dtab-"]').forEach((el,idx) => {
+    el.classList.toggle('active', idx===i);
+    el.style.background = idx===i?'var(--gray-100)':'';
+  });
+  if (i===6) { localStorage.removeItem('shopwave_user'); Toast.show('Logged out successfully'); setTimeout(()=>location.reload(),1000); return; }
+
+  const content = document.getElementById('dashContent');
+  if (i===0) {
+    content.innerHTML = `
+      <h2 style="margin-bottom:24px">My Orders</h2>
+      ${MOCK_ORDERS.map(o => `
+      <div style="background:white;border-radius:var(--radius-lg);border:1px solid var(--gray-200);padding:24px;margin-bottom:16px;box-shadow:var(--shadow-sm)">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:12px">
+          <div>
+            <div style="font-size:12px;color:var(--gray-400)">ORDER ID</div>
+            <div style="font-family:var(--font-display);font-weight:700">#${o.id}</div>
+          </div>
+          <div><div style="font-size:12px;color:var(--gray-400)">DATE</div><div style="font-size:14px">${o.date}</div></div>
+          <div><div style="font-size:12px;color:var(--gray-400)">TOTAL</div><div style="font-family:var(--font-display);font-weight:700">${formatPrice(o.total)}</div></div>
+          <span class="status-badge status-${o.status}">${o.status.toUpperCase()}</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:16px;padding:16px;background:var(--gray-100);border-radius:var(--radius-sm)">
+          <div style="flex:1;font-size:14px">${o.product}</div>
+          ${o.tracking?`<button class="btn btn-outline btn-sm" onclick="Toast.show('Tracking: ${o.tracking} — Out for delivery','success')">📦 Track Order</button>`:'<button class="btn btn-ghost btn-sm" disabled>Processing</button>'}
+          <button class="btn btn-ghost btn-sm" onclick="Toast.show('Invoice downloaded!','success')">🖨 Invoice</button>
+        </div>
+      </div>`).join('')}`;
+  } else if (i===1) {
+    const wishProds = PRODUCTS.filter(p => Wishlist.items.includes(p.id));
+    content.innerHTML = `<h2 style="margin-bottom:24px">My Wishlist (${wishProds.length})</h2>
+      ${wishProds.length ? `<div class="products-grid">${wishProds.map(p=>renderProductCard(p)).join('')}</div>` : 
+      '<div class="empty-state"><div class="empty-state-icon">❤️</div><h3>Your wishlist is empty</h3><p>Save products you love for later</p><a href="products.html" class="btn btn-primary">Start Browsing</a></div>'}`;
+  } else if (i===2) {
+    content.innerHTML = `
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px">
+        <h2>Saved Addresses</h2>
+        <button class="btn btn-outline btn-sm" onclick="Toast.show('Address form opening...','success')">+ Add Address</button>
+      </div>
+      <div style="background:white;border:2px solid var(--accent);border-radius:var(--radius-lg);padding:24px;margin-bottom:16px">
+        <div style="display:flex;justify-content:space-between;align-items:start">
+          <div>
+            <span class="badge badge-accent" style="margin-bottom:8px;display:inline-block">Default</span>
+            <div style="font-family:var(--font-display);font-weight:700;margin-bottom:8px">🏠 Rahul Kumar — Home</div>
+            <p style="font-size:14px;color:var(--gray-600)">42, MG Road, Koramangala<br>Bengaluru, Karnataka — 560034<br>📞 +91 98765 43210</p>
+          </div>
+          <div style="display:flex;gap:8px">
+            <button class="btn btn-ghost btn-sm">✏️ Edit</button>
+            <button class="btn btn-ghost btn-sm">🗑</button>
+          </div>
+        </div>
+      </div>`;
+  } else if (i===3) {
+    const u = JSON.parse(localStorage.getItem('shopwave_user')||'{}');
+    content.innerHTML = `
+      <h2 style="margin-bottom:24px">Profile Settings</h2>
+      <div style="background:white;border-radius:var(--radius-lg);border:1px solid var(--gray-200);padding:32px;max-width:560px">
+        <div class="form-grid" style="gap:16px">
+          <div class="form-group"><label class="form-label">First Name</label><input class="form-input" value="${u.name?.split(' ')[0]||''}"></div>
+          <div class="form-group"><label class="form-label">Last Name</label><input class="form-input" value="${u.name?.split(' ')[1]||''}"></div>
+        </div>
+        <div class="form-group"><label class="form-label">Email</label><input class="form-input" value="${u.email||''}"></div>
+        <div class="form-group"><label class="form-label">Phone</label><input class="form-input" value="+91 98765 43210" type="tel"></div>
+        <button class="btn btn-primary" onclick="Toast.show('Profile updated! ✅','success')">Save Changes</button>
+      </div>`;
+  } else {
+    content.innerHTML = `<h2 style="margin-bottom:24px">Coming Soon</h2><p style="color:var(--gray-600)">This section is under development.</p>`;
+  }
+}
+</script>
+</body>
+</html>

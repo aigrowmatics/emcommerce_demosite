@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ShopWave – Your Premium Shopping Destination</title>
+  <meta name="description" content="Shop the latest trends in electronics, fashion, sports, and home products at unbeatable prices.">
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .hero-bg { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 60%, #0f3460 100%); }
+    .hero-single { padding: 80px 24px; text-align: center; max-width: 800px; margin: 0 auto; }
+    .hero-single .hero-title { font-size: clamp(2.5rem,5vw,4.5rem); }
+  </style>
+</head>
+<body>
+<div id="header-placeholder"></div>
+
+<!-- HERO -->
+<section class="hero hero-bg">
+  <div class="hero-content" style="padding-left:64px">
+    <div class="hero-tag">✨ New Season Sale — Up to 60% Off</div>
+    <h1 class="hero-title">Discover <em>Premium</em><br>Products You'll Love</h1>
+    <p class="hero-sub">From cutting-edge electronics to everyday essentials — shop thousands of curated products with lightning-fast delivery.</p>
+    <div class="hero-ctas">
+      <a href="products.html" class="btn btn-primary btn-lg">🛍 Shop Now</a>
+      <a href="products.html?sort=discount" class="btn btn-outline-white btn-lg">🔥 Today's Deals</a>
+    </div>
+    <div class="hero-stats">
+      <div><div class="hero-stat-num">50K+</div><div class="hero-stat-label">Products</div></div>
+      <div><div class="hero-stat-num">2M+</div><div class="hero-stat-label">Happy Customers</div></div>
+      <div><div class="hero-stat-num">99.2%</div><div class="hero-stat-label">Satisfaction Rate</div></div>
+    </div>
+  </div>
+  <div class="hero-image">
+    <img src="https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=800&q=80" alt="Shopping">
+    <div class="hero-image-overlay"></div>
+  </div>
+</section>
+
+<!-- TRUST BAR -->
+<section class="trust-bar">
+  <div class="trust-bar-inner container">
+    <div class="trust-item">
+      <div class="trust-icon">🚚</div>
+      <div><div class="trust-title">Free Delivery</div><div class="trust-desc">On orders above ₹999</div></div>
+    </div>
+    <div class="trust-item">
+      <div class="trust-icon">🔄</div>
+      <div><div class="trust-title">Easy Returns</div><div class="trust-desc">30-day hassle-free returns</div></div>
+    </div>
+    <div class="trust-item">
+      <div class="trust-icon">🔐</div>
+      <div><div class="trust-title">Secure Payment</div><div class="trust-desc">100% secure transactions</div></div>
+    </div>
+    <div class="trust-item">
+      <div class="trust-icon">💬</div>
+      <div><div class="trust-title">24/7 Support</div><div class="trust-desc">Dedicated customer service</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- CATEGORIES -->
+<section class="py-section">
+  <div class="container">
+    <div style="text-align:center; margin-bottom:48px">
+      <span class="badge badge-accent" style="font-size:13px; margin-bottom:12px; display:inline-block">Shop by Category</span>
+      <h2 class="section-title">What Are You Looking For?</h2>
+      <p class="section-sub">Browse our wide selection across popular categories</p>
+    </div>
+    <div class="categories-grid" id="categoriesGrid"></div>
+  </div>
+</section>
+
+<!-- FEATURED PRODUCTS -->
+<section class="py-section" style="background:var(--gray-100)">
+  <div class="container">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:48px;flex-wrap:wrap;gap:16px">
+      <div>
+        <span class="badge badge-accent" style="font-size:13px; margin-bottom:8px; display:inline-block">✨ Featured</span>
+        <h2 class="section-title">Trending Products</h2>
+        <p class="section-sub" style="margin-bottom:0">Handpicked by our experts this week</p>
+      </div>
+      <a href="products.html" class="btn btn-outline">View All →</a>
+    </div>
+    <div class="products-grid" id="featuredProducts"></div>
+  </div>
+</section>
+
+<!-- PROMO BANNER -->
+<section class="py-section">
+  <div class="container">
+    <div class="promo-banner">
+      <div>
+        <div class="promo-tag">⚡ FLASH SALE</div>
+        <h2 class="promo-title">Up to <span style="color:var(--gold)">60% OFF</span><br>Today Only!</h2>
+        <p class="promo-sub">Grab these incredible deals before they're gone. Limited stock available.</p>
+        <a href="products.html?sort=discount" class="btn btn-primary btn-lg">Shop Flash Sale</a>
+      </div>
+      <div>
+        <p style="color:rgba(255,255,255,0.6);font-size:13px;margin-bottom:12px;text-align:center">Deal ends in:</p>
+        <div class="countdown" id="countdown"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- NEW ARRIVALS -->
+<section class="py-section" style="background:var(--gray-100)">
+  <div class="container">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:48px;flex-wrap:wrap;gap:16px">
+      <div>
+        <span class="badge badge-gold" style="font-size:13px;margin-bottom:8px;display:inline-block">🆕 Just In</span>
+        <h2 class="section-title">New Arrivals</h2>
+        <p class="section-sub" style="margin-bottom:0">Fresh drops you don't want to miss</p>
+      </div>
+      <a href="products.html?sort=new" class="btn btn-outline">See All New</a>
+    </div>
+    <div class="products-grid" id="newArrivals"></div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section class="py-section">
+  <div class="container">
+    <div style="text-align:center;margin-bottom:48px">
+      <h2 class="section-title">What Our Customers Say</h2>
+      <p class="section-sub">Trusted by over 2 million happy shoppers across India</p>
+    </div>
+    <div class="testimonials-grid">
+      <div class="testimonial-card">
+        <div class="testimonial-quote">"</div>
+        <p class="testimonial-text">ShopWave has completely changed how I shop online. The product quality is excellent and delivery is always on time. Highly recommend!</p>
+        <div class="testimonial-author">
+          <div class="author-avatar">P</div>
+          <div><div class="author-name">Priya Sharma</div><div class="author-loc">⭐⭐⭐⭐⭐ · Bangalore</div></div>
+        </div>
+      </div>
+      <div class="testimonial-card">
+        <div class="testimonial-quote">"</div>
+        <p class="testimonial-text">Amazing deals and genuine products. I bought electronics worth ₹15,000 and saved nearly ₹4,000. The return process was also super smooth.</p>
+        <div class="testimonial-author">
+          <div class="author-avatar" style="background:var(--accent)">R</div>
+          <div><div class="author-name">Rahul Mehta</div><div class="author-loc">⭐⭐⭐⭐⭐ · Mumbai</div></div>
+        </div>
+      </div>
+      <div class="testimonial-card">
+        <div class="testimonial-quote">"</div>
+        <p class="testimonial-text">Fast delivery, authentic products, and excellent customer service. This is my go-to platform for all my shopping needs now. Love it!</p>
+        <div class="testimonial-author">
+          <div class="author-avatar" style="background:#06d6a0;color:#1a1a2e">A</div>
+          <div><div class="author-name">Ananya Patel</div><div class="author-loc">⭐⭐⭐⭐⭐ · Delhi</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- NEWSLETTER -->
+<section class="py-section newsletter">
+  <div class="container" style="text-align:center">
+    <span class="badge badge-gold" style="margin-bottom:16px;display:inline-block;font-size:13px">📧 Newsletter</span>
+    <h2 class="section-title" style="color:white;margin-bottom:12px">Get Exclusive Deals in Your Inbox</h2>
+    <p style="color:rgba(255,255,255,0.6);margin-bottom:32px">Subscribe and get 10% off your first order + early access to sales.</p>
+    <div class="newsletter-form" style="max-width:480px;margin:0 auto">
+      <input type="email" placeholder="Enter your email address" id="newsletterEmail">
+      <button class="btn btn-primary" onclick="subscribeNewsletter()">Subscribe</button>
+    </div>
+    <p style="color:rgba(255,255,255,0.4);font-size:12px;margin-top:16px">No spam, unsubscribe anytime. 📧</p>
+  </div>
+</section>
+
+<div id="footer-placeholder"></div>
+
+<script src="js/app.js"></script>
+<script>
+document.getElementById('header-placeholder').innerHTML = buildHeader('Home');
+document.getElementById('footer-placeholder').innerHTML = buildFooter();
+
+// Render categories
+document.getElementById('categoriesGrid').innerHTML = CATEGORIES.map(c => `
+  <div class="cat-card" onclick="window.location.href='products.html?cat=${c.name}'">
+    <span class="cat-emoji">${c.emoji}</span>
+    <div class="cat-name">${c.name}</div>
+    <div class="cat-count">${c.count} items</div>
+  </div>`).join('');
+
+// Render featured products (first 8)
+document.getElementById('featuredProducts').innerHTML = PRODUCTS.slice(0,8).map(p => renderProductCard(p)).join('');
+
+// Render new arrivals (last 4)
+document.getElementById('newArrivals').innerHTML = PRODUCTS.slice(4,8).map(p => renderProductCard(p)).join('');
+
+// Countdown
+startCountdown('countdown', 5, 23, 41);
+
+// Newsletter
+function subscribeNewsletter() {
+  const email = document.getElementById('newsletterEmail').value;
+  if (!email || !email.includes('@')) { Toast.show('Please enter a valid email', 'error'); return; }
+  Toast.show('🎉 Subscribed! Check your email for 10% off coupon.', 'success');
+  document.getElementById('newsletterEmail').value = '';
+}
+</script>
+</body>
+</html>

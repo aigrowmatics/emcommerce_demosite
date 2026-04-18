@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Product Detail – ShopWave</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .spec-table { width:100%; border-collapse:collapse; }
+    .spec-table tr:nth-child(even) td { background:var(--gray-100); }
+    .spec-table td { padding:12px 16px; border-bottom:1px solid var(--gray-200); font-size:14px; }
+    .spec-table td:first-child { font-weight:600; width:40%; color:var(--gray-700); }
+    .review-card { background:var(--gray-100); border-radius:var(--radius); padding:20px; margin-bottom:16px; }
+    .stock-indicator { display:flex; align-items:center; gap:8px; font-size:14px; }
+    .stock-dot { width:8px; height:8px; border-radius:50%; }
+  </style>
+</head>
+<body>
+<div id="header-placeholder"></div>
+
+<div id="productContent" style="padding:48px 0">
+  <div class="container">
+    <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--gray-600);margin-bottom:32px">
+      <a href="index.html" style="color:var(--accent)">Home</a> › 
+      <a href="products.html" style="color:var(--accent)">Products</a> › 
+      <span id="breadProduct">Loading...</span>
+    </div>
+    
+    <div class="pdp-layout" id="pdpLayout">
+      <div style="text-align:center;color:var(--gray-400);padding:80px">Loading product...</div>
+    </div>
+
+    <!-- TABS -->
+    <div class="pdp-tabs" id="pdpTabs" style="display:none">
+      <button class="tab-btn active" onclick="switchTab('description',this)">Description</button>
+      <button class="tab-btn" onclick="switchTab('specs',this)">Specifications</button>
+      <button class="tab-btn" onclick="switchTab('reviews',this)">Reviews (0)</button>
+    </div>
+    <div id="tabContent" style="display:none;padding-bottom:64px"></div>
+
+    <!-- RELATED PRODUCTS -->
+    <div id="relatedSection" style="display:none">
+      <h2 style="font-size:1.8rem;margin-bottom:32px">You May Also Like</h2>
+      <div class="products-grid" id="relatedProducts"></div>
+    </div>
+  </div>
+</div>
+
+<div id="footer-placeholder"></div>
+
+<script src="js/app.js"></script>
+<script>
+document.getElementById('header-placeholder').innerHTML = buildHeader();
+document.getElementById('footer-placeholder').innerHTML = buildFooter();
+
+const params = new URLSearchParams(window.location.search);
+const productId = parseInt(params.get('id')) || 1;
+const product = PRODUCTS.find(p => p.id === productId);
+
+let selectedSize = '';
+let selectedColor = 0;
+let qty = 1;
+let mainImgIndex = 0;
+
+const IMAGES = [
+  product?.image,
+  `https://images.unsplash.com/photo-1503602642458-232111445657?w=600&q=80`,
+  `https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?w=600&q=80`,
+  `https://images.unsplash.com/photo-1511499767150-a48a237f0083?w=600&q=80`,
+].filter(Boolean);
+
+if (product) {
+  document.title = `${product.name} – ShopWave`;
+  document.getElementById('breadProduct').textContent = product.name;
+
+  const inWishlist = Wishlist.has(product.id);
+  
+  document.getElementById('pdpLayout').innerHTML = `
+    <div class="pdp-gallery">
+      <div class="pdp-main-img">
+        <img src="${IMAGES[0]}" alt="${product.name}" id="mainProductImg">
+      </div>
+      <div class="pdp-thumbnails">
+        ${IMAGES.map((img,i) => `
+          <div class="pdp-thumb ${i===0?'active':''}" onclick="changeImage(${i})">
+            <img src="${img}" alt="View ${i+1}">
+          </div>`).join('')}
+      </div>
+    </div>
+    
+    <div class="pdp-content">
+      <div style="display:flex;gap:8px;margin-bottom:12px">
+        <span class="badge badge-accent">${product.badge||'Available'}</span>
+        <span class="badge badge-success">✓ In Stock (${product.stock} left)</span>
+      </div>
+      <h1>${product.name}</h1>
+      <div class="pdp-meta">
+        <span style="color:var(--gold);font-size:18px">${'★'.repeat(Math.floor(product.rating))}${'☆'.repeat(5-Math.floor(product.rating))}</span>
+        <span style="font-size:14px;color:var(--gray-600)">${product.rating} (${product.reviews.toLocaleString()} reviews)</span>
+        <span style="color:var(--gray-400)">|</span>
+        <span style="font-size:13px;color:var(--gray-600)">SKU: SW-${String(product.id).padStart(4,'0')}</span>
+        <span style="font-size:13px;color:var(--gray-600)">Brand: <strong>${product.brand}</strong></span>
+      </div>
+
+      <div class="pdp-price">
+        <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+          <span class="price-current" style="font-size:2.2rem">${formatPrice(product.price)}</span>
+          <span class="price-original" style="font-size:1.1rem">${formatPrice(product.mrp)}</span>
+          <span class="badge badge-accent" style="font-size:14px">${product.discount}% OFF</span>
+        </div>
+        <div style="font-size:13px;color:var(--success);margin-top:8px">✅ You save ${formatPrice(product.mrp - product.price)}!</div>
+        <div style="font-size:13px;color:var(--gray-600);margin-top:4px">Inclusive of all taxes</div>
+      </div>
+
+      ${product.colors.length ? `
+      <div>
+        <div class="variant-label">Color: <span id="colorName">${product.colors[0]}</span></div>
+        <div class="variant-options" id="colorOptions">
+          ${product.colors.map((c,i) => `
+            <button class="color-btn ${i===0?'active':''}" style="background:${c}" 
+              onclick="selectColor(${i},'${c}')" title="${c}"></button>`).join('')}
+        </div>
+      </div>` : ''}
+
+      ${product.sizes.length ? `
+      <div>
+        <div class="variant-label">Size: <span id="sizeName">${product.sizes[0]}</span></div>
+        <div class="variant-options" id="sizeOptions">
+          ${product.sizes.map((s,i) => `
+            <button class="variant-btn ${i===0?'active':''}" onclick="selectSize('${s}',this)">${s}</button>`).join('')}
+        </div>
+      </div>` : ''}
+
+      <div class="variant-label" style="margin-bottom:12px">Quantity:</div>
+      <div class="qty-selector">
+        <button class="qty-btn" onclick="changeQty(-1)">−</button>
+        <input type="number" class="qty-input" id="qtyInput" value="1" min="1" max="${product.stock}" onchange="qty=parseInt(this.value)||1">
+        <button class="qty-btn" onclick="changeQty(1)">+</button>
+      </div>
+
+      <div class="pdp-ctas">
+        <button class="btn btn-primary btn-lg" onclick="addToCart()">🛒 Add to Cart</button>
+        <button class="btn btn-outline btn-lg" onclick="buyNow()">⚡ Buy Now</button>
+        <button class="btn btn-ghost btn-lg btn-icon" id="wishBtn" onclick="toggleWishlistPDP()" title="Wishlist">
+          ${inWishlist?'❤️':'🤍'}
+        </button>
+      </div>
+
+      <!-- Delivery check -->
+      <div style="background:var(--gray-100);border-radius:var(--radius);padding:20px;margin-top:8px">
+        <div style="font-family:var(--font-display);font-weight:700;font-size:14px;margin-bottom:12px">📦 Check Delivery</div>
+        <div class="pincode-check">
+          <input type="text" placeholder="Enter pincode" maxlength="6" id="pincodeInput" style="border:2px solid var(--gray-200);border-radius:var(--radius-sm);padding:10px 14px;font-family:var(--font-body);outline:none;flex:1">
+          <button class="btn btn-outline btn-sm" onclick="checkDelivery()">Check</button>
+        </div>
+        <div id="deliveryResult" style="margin-top:8px;font-size:13px"></div>
+      </div>
+
+      <!-- Trust icons -->
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:20px">
+        <div style="text-align:center;padding:16px;background:var(--gray-100);border-radius:var(--radius-sm)">
+          <div style="font-size:24px;margin-bottom:4px">🔄</div>
+          <div style="font-size:11px;font-weight:700">30-Day Returns</div>
+        </div>
+        <div style="text-align:center;padding:16px;background:var(--gray-100);border-radius:var(--radius-sm)">
+          <div style="font-size:24px;margin-bottom:4px">🔐</div>
+          <div style="font-size:11px;font-weight:700">Secure Payment</div>
+        </div>
+        <div style="text-align:center;padding:16px;background:var(--gray-100);border-radius:var(--radius-sm)">
+          <div style="font-size:24px;margin-bottom:4px">✅</div>
+          <div style="font-size:11px;font-weight:700">100% Genuine</div>
+        </div>
+      </div>
+    </div>`;
+
+  // Show tabs & related
+  document.getElementById('pdpTabs').style.display = 'flex';
+  document.getElementById('tabContent').style.display = 'block';
+  document.getElementById('relatedSection').style.display = 'block';
+
+  // Tab content
+  const reviews = [
+    {name:'Kiran P.', rating:5, text:'Excellent quality! Exactly as described. Super fast delivery.', date:'2 days ago'},
+    {name:'Meera S.', rating:4, text:'Great product for the price. Would definitely recommend!', date:'1 week ago'},
+    {name:'Arjun K.', rating:5, text:'Absolutely love it! Premium quality and great packaging.', date:'2 weeks ago'},
+  ];
+
+  switchTab('description', document.querySelector('.tab-btn.active'));
+
+  // Related products (same category, exclude current)
+  const related = PRODUCTS.filter(p => p.category === product.category && p.id !== product.id).slice(0,4);
+  document.getElementById('relatedProducts').innerHTML = related.map(p => renderProductCard(p)).join('');
+  if (!related.length) document.getElementById('relatedSection').style.display = 'none';
+
+  // Init size/color selections
+  if (product.sizes.length) selectedSize = product.sizes[0];
+  selectedColor = 0;
+} else {
+  document.getElementById('pdpLayout').innerHTML = '<div class="empty-state"><div class="empty-state-icon">😕</div><h3>Product not found</h3><p>This product may no longer be available</p><a href="products.html" class="btn btn-primary">Browse All Products</a></div>';
+}
+
+function changeImage(i) {
+  document.getElementById('mainProductImg').src = IMAGES[i];
+  document.querySelectorAll('.pdp-thumb').forEach((t,idx) => t.classList.toggle('active', idx===i));
+}
+function selectSize(s, btn) {
+  selectedSize = s;
+  document.getElementById('sizeName').textContent = s;
+  document.querySelectorAll('#sizeOptions .variant-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+function selectColor(i, c) {
+  selectedColor = i;
+  document.getElementById('colorName').textContent = c;
+  document.querySelectorAll('#colorOptions .color-btn').forEach((b,idx) => b.classList.toggle('active', idx===i));
+}
+function changeQty(delta) {
+  const input = document.getElementById('qtyInput');
+  qty = Math.max(1, Math.min(product?.stock||99, parseInt(input.value)+delta));
+  input.value = qty;
+}
+function addToCart() {
+  const variant = [selectedSize, product?.colors[selectedColor]].filter(Boolean).join(' / ');
+  Cart.add(productId, qty, variant);
+}
+function buyNow() {
+  addToCart();
+  window.location.href = 'checkout.html';
+}
+function toggleWishlistPDP() {
+  Wishlist.toggle(productId);
+  document.getElementById('wishBtn').textContent = Wishlist.has(productId) ? '❤️' : '🤍';
+}
+function checkDelivery() {
+  const pin = document.getElementById('pincodeInput').value;
+  if (pin.length !== 6 || isNaN(pin)) { document.getElementById('deliveryResult').innerHTML = '<span style="color:var(--accent)">Please enter a valid 6-digit pincode</span>'; return; }
+  const days = Math.floor(Math.random()*3)+2;
+  const delivery = new Date(); delivery.setDate(delivery.getDate()+days);
+  document.getElementById('deliveryResult').innerHTML = `<span style="color:var(--success)">✅ Delivery available to ${pin} — Expected by <strong>${delivery.toDateString()}</strong></span><br><span style="color:var(--gray-600);font-size:12px">Free delivery on this order 🎉</span>`;
+}
+
+function switchTab(tab, btn) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  btn?.classList.add('active');
+
+  const reviews = [
+    {name:'Kiran P.', rating:5, text:'Excellent quality! Exactly as described. Super fast delivery.', date:'2 days ago'},
+    {name:'Meera S.', rating:4, text:'Great product for the price. Would definitely recommend!', date:'1 week ago'},
+    {name:'Arjun K.', rating:5, text:'Absolutely love it! Premium quality and great packaging.', date:'2 weeks ago'},
+  ];
+
+  const content = document.getElementById('tabContent');
+  if (tab === 'description') {
+    content.innerHTML = `<p style="color:var(--gray-700);line-height:1.9;font-size:15px;max-width:800px">${product?.description}</p>`;
+  } else if (tab === 'specs') {
+    const specs = product?.specs || {};
+    content.innerHTML = `
+      <table class="spec-table" style="max-width:600px">
+        ${Object.entries(specs).map(([k,v]) => `<tr><td>${k}</td><td>${v}</td></tr>`).join('')}
+      </table>`;
+  } else if (tab === 'reviews') {
+    content.innerHTML = `
+      <div style="display:grid;grid-template-columns:1fr 2fr;gap:32px;max-width:900px;margin-bottom:32px">
+        <div style="text-align:center;padding:32px;background:var(--gray-100);border-radius:var(--radius-lg)">
+          <div style="font-size:4rem;font-weight:800;font-family:var(--font-display)">${product?.rating}</div>
+          <div style="color:var(--gold);font-size:24px;margin:8px 0">${'★'.repeat(Math.floor(product?.rating||0))}</div>
+          <div style="color:var(--gray-600);font-size:13px">${product?.reviews.toLocaleString()} reviews</div>
+        </div>
+        <div>
+          ${[5,4,3,2,1].map(r => {
+            const pct = r===5?60:r===4?25:r===3?10:r===2?3:2;
+            return `<div style="display:flex;align-items:center;gap:12px;margin-bottom:8px">
+              <span style="font-size:13px;min-width:20px">${r}★</span>
+              <div style="flex:1;height:8px;background:var(--gray-200);border-radius:4px;overflow:hidden">
+                <div style="width:${pct}%;height:100%;background:var(--gold)"></div>
+              </div>
+              <span style="font-size:13px;color:var(--gray-600);min-width:30px">${pct}%</span>
+            </div>`;
+          }).join('')}
+        </div>
+      </div>
+      <h3 style="margin-bottom:16px">Customer Reviews</h3>
+      ${reviews.map(r => `
+        <div class="review-card">
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px">
+            <div style="width:36px;height:36px;background:var(--primary);border-radius:50%;display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:14px">${r.name[0]}</div>
+            <div>
+              <div style="font-weight:700;font-family:var(--font-display);font-size:14px">${r.name}</div>
+              <div style="color:var(--gold);font-size:13px">${'★'.repeat(r.rating)}${'☆'.repeat(5-r.rating)}</div>
+            </div>
+            <div style="margin-left:auto;font-size:12px;color:var(--gray-400)">${r.date}</div>
+          </div>
+          <p style="font-size:14px;color:var(--gray-700)">${r.text}</p>
+        </div>`).join('')}
+      <div style="background:var(--gray-100);border-radius:var(--radius);padding:24px;margin-top:24px">
+        <h4 style="margin-bottom:16px;font-size:16px">Write a Review</h4>
+        <div style="display:flex;gap:8px;font-size:24px;cursor:pointer;margin-bottom:16px" id="reviewStars">
+          ${[1,2,3,4,5].map(s => `<span onclick="setReviewStar(${s})" data-star="${s}">☆</span>`).join('')}
+        </div>
+        <textarea placeholder="Share your experience with this product..." style="width:100%;padding:12px;border:2px solid var(--gray-200);border-radius:var(--radius-sm);font-family:var(--font-body);height:100px;outline:none;resize:none;font-size:14px" id="reviewText"></textarea>
+        <button class="btn btn-primary" style="margin-top:12px" onclick="submitReview()">Submit Review</button>
+      </div>`;
+  }
+}
+function setReviewStar(n) {
+  document.querySelectorAll('#reviewStars span').forEach((s,i) => s.textContent = i<n?'★':'☆');
+}
+function submitReview() {
+  const text = document.getElementById('reviewText').value;
+  if (!text.trim()) { Toast.show('Please write a review first','error'); return; }
+  Toast.show('Review submitted! Thank you 🙏','success');
+  document.getElementById('reviewText').value='';
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Products – ShopWave</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div id="header-placeholder"></div>
+
+<div class="page-header">
+  <div class="container">
+    <h1 id="pageTitle">All Products</h1>
+    <div class="breadcrumb"><a href="index.html">Home</a> <span>›</span> <span id="breadCrumb">Products</span></div>
+  </div>
+</div>
+
+<div class="container">
+  <div class="shop-layout">
+    <!-- SIDEBAR -->
+    <aside class="filter-sidebar" id="filterSidebar">
+      <div class="filter-card">
+        <div class="filter-title">Categories <button onclick="clearFilters()" style="font-size:12px;color:var(--accent);background:none;border:none;cursor:pointer;font-weight:600">Clear All</button></div>
+        <div id="categoryFilters">
+          ${['Electronics','Fashion','Sports','Home','Beauty','Books'].map(c => `
+          <label class="filter-option">
+            <input type="checkbox" value="${c}" onchange="applyFilters()"> ${c}
+          </label>`).join('')}
+        </div>
+      </div>
+
+      <div class="filter-card">
+        <div class="filter-title">Price Range</div>
+        <div class="price-range-inputs">
+          <input type="number" class="price-input" placeholder="Min ₹" id="priceMin" onchange="applyFilters()">
+          <input type="number" class="price-input" placeholder="Max ₹" id="priceMax" onchange="applyFilters()">
+        </div>
+      </div>
+
+      <div class="filter-card">
+        <div class="filter-title">Brand</div>
+        <div id="brandFilters">
+          ${[...new Set(PRODUCTS.map(p=>p.brand))].map(b => `
+          <label class="filter-option">
+            <input type="checkbox" value="${b}" onchange="applyFilters()"> ${b}
+          </label>`).join('')}
+        </div>
+      </div>
+
+      <div class="filter-card">
+        <div class="filter-title">Rating</div>
+        ${[4,3,2,1].map(r => `
+        <label class="filter-option">
+          <input type="radio" name="rating" value="${r}" onchange="applyFilters()">
+          ${'★'.repeat(r)}${'☆'.repeat(5-r)} & above
+        </label>`).join('')}
+      </div>
+
+      <div class="filter-card">
+        <div class="filter-title">Availability</div>
+        <label class="filter-option"><input type="checkbox" id="inStock" onchange="applyFilters()"> In Stock Only</label>
+      </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main>
+      <div class="shop-topbar">
+        <span class="result-count" id="resultCount">Showing all 12 products</span>
+        <div style="display:flex;align-items:center;gap:12px">
+          <button class="btn btn-ghost btn-sm" onclick="toggleFilters()" style="display:none" id="filterToggle">⚙ Filters</button>
+          <select class="sort-select" id="sortSelect" onchange="applyFilters()">
+            <option value="relevance">Sort: Relevance</option>
+            <option value="price-asc">Price: Low to High</option>
+            <option value="price-desc">Price: High to Low</option>
+            <option value="discount">Biggest Discount</option>
+            <option value="rating">Top Rated</option>
+            <option value="newest">Newest First</option>
+          </select>
+          <div class="view-toggle">
+            <button class="view-btn active" id="gridView" onclick="setView('grid')" title="Grid">▦</button>
+            <button class="view-btn" id="listView" onclick="setView('list')" title="List">≡</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Active filter tags -->
+      <div id="activeTags" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px"></div>
+
+      <div id="productsContainer" class="products-grid"></div>
+
+      <!-- Empty state -->
+      <div id="emptyState" class="empty-state" style="display:none">
+        <div class="empty-state-icon">🔍</div>
+        <h3>No products found</h3>
+        <p>Try adjusting your filters or search term</p>
+        <button class="btn btn-primary" onclick="clearFilters()">Clear All Filters</button>
+      </div>
+
+      <!-- Pagination -->
+      <div id="pagination" style="display:flex;justify-content:center;gap:8px;margin-top:48px;flex-wrap:wrap"></div>
+    </main>
+  </div>
+</div>
+
+<div id="footer-placeholder"></div>
+
+<script src="js/app.js"></script>
+<script>
+document.getElementById('header-placeholder').innerHTML = buildHeader('Products');
+document.getElementById('footer-placeholder').innerHTML = buildFooter();
+document.getElementById('filterToggle').style.display = 'flex';
+
+const params = new URLSearchParams(window.location.search);
+const initCat = params.get('cat');
+const initQ = params.get('q');
+const initSort = params.get('sort');
+let currentPage = 1;
+const PER_PAGE = 8;
+
+// Set title based on query
+if (initCat) {
+  document.getElementById('pageTitle').textContent = initCat;
+  document.getElementById('breadCrumb').textContent = initCat;
+  // Pre-check category checkbox
+  setTimeout(() => {
+    document.querySelectorAll('#categoryFilters input').forEach(cb => {
+      if (cb.value === initCat) { cb.checked = true; }
+    });
+    applyFilters();
+  }, 10);
+} else if (initQ) {
+  document.getElementById('pageTitle').textContent = `Search: "${initQ}"`;
+  document.getElementById('breadCrumb').textContent = 'Search Results';
+  applyFilters();
+} else if (initSort === 'discount') {
+  document.getElementById('sortSelect').value = 'discount';
+  document.getElementById('pageTitle').textContent = "Today's Best Deals";
+  applyFilters();
+} else if (initSort === 'new') {
+  document.getElementById('sortSelect').value = 'newest';
+  document.getElementById('pageTitle').textContent = "New Arrivals";
+  applyFilters();
+} else {
+  applyFilters();
+}
+
+function getFilters() {
+  const cats = [...document.querySelectorAll('#categoryFilters input:checked')].map(i=>i.value);
+  const brands = [...document.querySelectorAll('#brandFilters input:checked')].map(i=>i.value);
+  const rating = document.querySelector('input[name="rating"]:checked')?.value;
+  const minP = parseInt(document.getElementById('priceMin').value)||0;
+  const maxP = parseInt(document.getElementById('priceMax').value)||Infinity;
+  const inStock = document.getElementById('inStock').checked;
+  const sort = document.getElementById('sortSelect').value;
+  return {cats, brands, rating, minP, maxP, inStock, sort};
+}
+
+function applyFilters() {
+  const f = getFilters();
+  let products = [...PRODUCTS];
+
+  // Search
+  if (initQ) {
+    const q = initQ.toLowerCase();
+    products = products.filter(p => p.name.toLowerCase().includes(q) || p.category.toLowerCase().includes(q) || p.brand.toLowerCase().includes(q));
+  }
+
+  if (f.cats.length) products = products.filter(p => f.cats.includes(p.category));
+  if (f.brands.length) products = products.filter(p => f.brands.includes(p.brand));
+  if (f.rating) products = products.filter(p => p.rating >= parseFloat(f.rating));
+  if (f.minP) products = products.filter(p => p.price >= f.minP);
+  if (f.maxP < Infinity) products = products.filter(p => p.price <= f.maxP);
+  if (f.inStock) products = products.filter(p => p.stock > 0);
+
+  // Sort
+  if (f.sort === 'price-asc') products.sort((a,b) => a.price - b.price);
+  else if (f.sort === 'price-desc') products.sort((a,b) => b.price - a.price);
+  else if (f.sort === 'discount') products.sort((a,b) => b.discount - a.discount);
+  else if (f.sort === 'rating') products.sort((a,b) => b.rating - a.rating);
+  else if (f.sort === 'newest') products.sort((a,b) => b.id - a.id);
+
+  renderProducts(products);
+  renderActiveTags(f);
+}
+
+function renderProducts(products) {
+  const totalPages = Math.ceil(products.length / PER_PAGE);
+  if (currentPage > totalPages) currentPage = 1;
+  const start = (currentPage-1)*PER_PAGE;
+  const slice = products.slice(start, start+PER_PAGE);
+
+  document.getElementById('resultCount').textContent = `Showing ${products.length} product${products.length!==1?'s':''}`;
+  
+  const container = document.getElementById('productsContainer');
+  const empty = document.getElementById('emptyState');
+  
+  if (!products.length) {
+    container.innerHTML = '';
+    container.style.display = 'none';
+    empty.style.display = 'block';
+  } else {
+    container.innerHTML = slice.map(p => renderProductCard(p)).join('');
+    container.style.display = 'grid';
+    empty.style.display = 'none';
+  }
+
+  // Pagination
+  const pg = document.getElementById('pagination');
+  pg.innerHTML = '';
+  if (totalPages > 1) {
+    for (let i=1; i<=totalPages; i++) {
+      const btn = document.createElement('button');
+      btn.textContent = i;
+      btn.className = `btn btn-sm ${i===currentPage?'btn-primary':'btn-outline'}`;
+      btn.onclick = () => { currentPage = i; applyFilters(); window.scrollTo({top:200,behavior:'smooth'}); };
+      pg.appendChild(btn);
+    }
+  }
+}
+
+function renderActiveTags(f) {
+  const container = document.getElementById('activeTags');
+  const tags = [];
+  f.cats.forEach(c => tags.push({label:`Category: ${c}`, clear:()=>{ document.querySelector(`#categoryFilters input[value="${c}"]`).checked=false; applyFilters(); }}));
+  f.brands.forEach(b => tags.push({label:`Brand: ${b}`, clear:()=>{ document.querySelector(`#brandFilters input[value="${b}"]`).checked=false; applyFilters(); }}));
+  if (f.rating) tags.push({label:`${f.rating}★ & above`, clear:()=>{ document.querySelector('input[name="rating"]:checked').checked=false; applyFilters(); }});
+  if (f.minP) tags.push({label:`Min: ₹${f.minP}`, clear:()=>{ document.getElementById('priceMin').value=''; applyFilters(); }});
+  if (f.maxP < Infinity) tags.push({label:`Max: ₹${f.maxP}`, clear:()=>{ document.getElementById('priceMax').value=''; applyFilters(); }});
+
+  container.innerHTML = tags.map((t,i) => `
+    <span class="badge badge-accent" style="font-size:12px;padding:6px 12px;display:inline-flex;align-items:center;gap:6px">
+      ${t.label} <span onclick="filterTagActions[${i}]()" style="cursor:pointer;font-size:14px;line-height:1">×</span>
+    </span>`).join('');
+  window.filterTagActions = tags.map(t => t.clear);
+}
+
+function clearFilters() {
+  document.querySelectorAll('#categoryFilters input, #brandFilters input').forEach(i=>i.checked=false);
+  document.querySelector('input[name="rating"]:checked')&&(document.querySelector('input[name="rating"]:checked').checked=false);
+  document.getElementById('priceMin').value='';
+  document.getElementById('priceMax').value='';
+  document.getElementById('inStock').checked=false;
+  document.getElementById('sortSelect').value='relevance';
+  currentPage=1;
+  applyFilters();
+}
+
+function setView(v) {
+  const container = document.getElementById('productsContainer');
+  document.getElementById('gridView').classList.toggle('active', v==='grid');
+  document.getElementById('listView').classList.toggle('active', v==='list');
+  if (v==='list') {
+    container.style.gridTemplateColumns='1fr';
+    container.querySelectorAll('.product-card').forEach(c=>c.style.display='flex');
+  } else {
+    container.style.gridTemplateColumns='';
+    container.querySelectorAll('.product-card').forEach(c=>c.style.display='');
+  }
+}
+
+function toggleFilters() {
+  document.getElementById('filterSidebar').classList.toggle('open');
+}
+</script>
+</body>
+</html>

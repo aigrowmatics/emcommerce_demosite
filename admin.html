@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Panel – ShopWave</title>
+  <link rel="stylesheet" href="css/style.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+  <style>
+    .table-card { background:white;border-radius:var(--radius-lg);border:1px solid var(--gray-200);overflow:hidden;box-shadow:var(--shadow-sm); }
+    .table-header { padding:20px 24px;border-bottom:1px solid var(--gray-200);display:flex;align-items:center;justify-content:space-between; }
+    .chart-card { background:white;border-radius:var(--radius-lg);border:1px solid var(--gray-200);padding:24px;box-shadow:var(--shadow-sm); }
+    .admin-page { display:none; }
+    .admin-page.active { display:block; }
+  </style>
+</head>
+<body>
+<div style="display:flex">
+  <!-- SIDEBAR -->
+  <aside class="admin-sidebar">
+    <div class="admin-logo">
+      <div class="logo" style="color:white;font-size:1.3rem"><div class="logo-icon" style="width:32px;height:32px;font-size:16px">🛍</div>Shop<span style="color:var(--accent)">Wave</span></div>
+      <div style="font-size:12px;color:rgba(255,255,255,0.4);margin-top:6px">Admin Panel v1.0</div>
+    </div>
+    <nav class="admin-nav">
+      <div style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,0.3);padding:8px 16px;margin-bottom:4px">Main</div>
+      <div class="admin-nav-item active" onclick="showPage('dashboard',this)"><i>📊</i> Dashboard</div>
+      <div class="admin-nav-item" onclick="showPage('products',this)"><i>📦</i> Products</div>
+      <div class="admin-nav-item" onclick="showPage('orders',this)"><i>🛒</i> Orders</div>
+      <div class="admin-nav-item" onclick="showPage('customers',this)"><i>👥</i> Customers</div>
+      <div style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,0.3);padding:8px 16px;margin:8px 0 4px">Management</div>
+      <div class="admin-nav-item" onclick="showPage('coupons',this)"><i>🏷️</i> Coupons</div>
+      <div class="admin-nav-item" onclick="showPage('inventory',this)"><i>📋</i> Inventory</div>
+      <div style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,0.3);padding:8px 16px;margin:8px 0 4px">System</div>
+      <div class="admin-nav-item" onclick="window.location.href='index.html'"><i>🏠</i> View Store</div>
+      <div class="admin-nav-item" onclick="window.location.href='account.html'"><i>🚪</i> Exit Admin</div>
+    </nav>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="admin-main">
+    <div class="admin-topbar">
+      <div>
+        <h2 style="font-size:1.2rem" id="pageTitle">Dashboard</h2>
+        <div style="font-size:13px;color:var(--gray-400)" id="pageSub">Welcome back, Admin 👋</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:16px">
+        <input type="text" placeholder="🔍 Search..." style="padding:10px 16px;border:2px solid var(--gray-200);border-radius:var(--radius);font-family:var(--font-body);font-size:14px;outline:none">
+        <div style="width:40px;height:40px;background:var(--accent);border-radius:50%;display:flex;align-items:center;justify-content:center;color:white;font-weight:700;cursor:pointer">A</div>
+      </div>
+    </div>
+
+    <div class="admin-content">
+
+      <!-- DASHBOARD PAGE -->
+      <div class="admin-page active" id="page-dashboard">
+        <div class="stat-cards">
+          <div class="stat-card">
+            <div class="stat-icon">💰</div>
+            <div class="stat-value">₹4.82L</div>
+            <div class="stat-label">Total Revenue</div>
+            <div class="stat-change up">↑ +23.5% this month</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">🛒</div>
+            <div class="stat-value">1,284</div>
+            <div class="stat-label">Total Orders</div>
+            <div class="stat-change up">↑ +12.1% this week</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">👥</div>
+            <div class="stat-value">8,432</div>
+            <div class="stat-label">Customers</div>
+            <div class="stat-change up">↑ +8.3% this month</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">📦</div>
+            <div class="stat-value">324</div>
+            <div class="stat-label">Products Listed</div>
+            <div class="stat-change down">↓ 12 low stock</div>
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:2fr 1fr;gap:24px;margin-bottom:24px">
+          <div class="chart-card">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+              <h3>Revenue Overview</h3>
+              <select style="padding:6px 12px;border:2px solid var(--gray-200);border-radius:var(--radius-sm);font-family:var(--font-body);font-size:13px;outline:none">
+                <option>Last 7 days</option><option>Last 30 days</option><option>Last 3 months</option>
+              </select>
+            </div>
+            <canvas id="revenueChart" height="100"></canvas>
+          </div>
+          <div class="chart-card">
+            <h3 style="margin-bottom:20px">Sales by Category</h3>
+            <canvas id="categoryChart" height="200"></canvas>
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px">
+          <div class="table-card">
+            <div class="table-header">
+              <h3 style="font-size:15px">Recent Orders</h3>
+              <button class="btn btn-ghost btn-sm" onclick="showPage('orders')">View All</button>
+            </div>
+            <table class="admin-table">
+              <thead><tr><th>Order</th><th>Customer</th><th>Amount</th><th>Status</th></tr></thead>
+              <tbody id="recentOrdersTable"></tbody>
+            </table>
+          </div>
+          <div class="table-card">
+            <div class="table-header">
+              <h3 style="font-size:15px">Top Products</h3>
+              <button class="btn btn-ghost btn-sm">Export CSV</button>
+            </div>
+            <table class="admin-table">
+              <thead><tr><th>Product</th><th>Sold</th><th>Revenue</th></tr></thead>
+              <tbody>
+                ${PRODUCTS.slice(0,5).map((p,i) => `<tr>
+                  <td style="display:flex;align-items:center;gap:10px">
+                    <img src="${p.image}" style="width:36px;height:36px;border-radius:8px;object-fit:cover">
+                    <span style="font-size:13px">${p.name.substring(0,25)}...</span>
+                  </td>
+                  <td style="font-weight:700">${Math.floor(Math.random()*200+50)}</td>
+                  <td>₹${(Math.random()*50000+10000).toFixed(0)}</td>
+                </tr>`).join('')}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- PRODUCTS PAGE -->
+      <div class="admin-page" id="page-products">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px">
+          <div></div>
+          <button class="btn btn-primary" onclick="showAddProduct()">+ Add Product</button>
+        </div>
+        <div class="table-card">
+          <div class="table-header">
+            <h3>All Products (${PRODUCTS.length})</h3>
+            <input type="text" placeholder="Search products..." style="padding:8px 14px;border:2px solid var(--gray-200);border-radius:var(--radius-sm);font-family:var(--font-body);font-size:13px;outline:none;width:220px">
+          </div>
+          <table class="admin-table">
+            <thead><tr><th>Product</th><th>Category</th><th>Price</th><th>Stock</th><th>Rating</th><th>Actions</th></tr></thead>
+            <tbody>
+              ${PRODUCTS.map(p => `<tr>
+                <td><div style="display:flex;align-items:center;gap:12px">
+                  <img src="${p.image}" style="width:48px;height:48px;border-radius:10px;object-fit:cover">
+                  <div><div style="font-weight:600;font-size:14px">${p.name}</div><div style="font-size:12px;color:var(--gray-400)">SKU: SW-${String(p.id).padStart(4,'0')}</div></div>
+                </div></td>
+                <td><span class="badge" style="background:var(--gray-100);color:var(--gray-700)">${p.category}</span></td>
+                <td><span style="font-weight:700">${formatPrice(p.price)}</span><br><span style="font-size:12px;color:var(--gray-400);text-decoration:line-through">${formatPrice(p.mrp)}</span></td>
+                <td><span class="${p.stock<20?'status-badge status-processing':''}" style="${p.stock<20?'':'color:var(--success);font-weight:700'}">${p.stock} ${p.stock<20?'⚠️ Low':''}</span></td>
+                <td>⭐ ${p.rating}</td>
+                <td><div style="display:flex;gap:8px">
+                  <button class="btn btn-ghost btn-sm" onclick="Toast.show('Opening edit form...','success')">✏️</button>
+                  <button class="btn btn-ghost btn-sm" onclick="if(confirm('Delete product?'))Toast.show('Product deleted','success')">🗑️</button>
+                </div></td>
+              </tr>`).join('')}
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Add Product Modal (hidden) -->
+        <div id="addProductModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:1000;overflow-y:auto">
+          <div style="background:white;border-radius:var(--radius-lg);max-width:600px;margin:48px auto;padding:32px">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px">
+              <h3>Add New Product</h3>
+              <button onclick="document.getElementById('addProductModal').style.display='none'" style="background:none;border:none;font-size:24px;cursor:pointer">×</button>
+            </div>
+            <div class="form-group"><label class="form-label">Product Name *</label><input class="form-input" placeholder="Enter product name"></div>
+            <div class="form-grid"><div class="form-group"><label class="form-label">Category</label><select class="form-input"><option>Electronics</option><option>Fashion</option><option>Sports</option><option>Home</option></select></div>
+            <div class="form-group"><label class="form-label">Brand</label><input class="form-input" placeholder="Brand name"></div></div>
+            <div class="form-grid"><div class="form-group"><label class="form-label">Price (₹) *</label><input class="form-input" type="number" placeholder="999"></div>
+            <div class="form-group"><label class="form-label">MRP (₹)</label><input class="form-input" type="number" placeholder="1999"></div></div>
+            <div class="form-group"><label class="form-label">Stock Quantity</label><input class="form-input" type="number" placeholder="100"></div>
+            <div class="form-group"><label class="form-label">Description</label><textarea class="form-input" rows="3" placeholder="Product description..."></textarea></div>
+            <div class="form-group"><label class="form-label">Image URL</label><input class="form-input" placeholder="https://..."></div>
+            <div style="display:flex;gap:12px;margin-top:8px">
+              <button class="btn btn-primary" onclick="Toast.show('Product added successfully! ✅','success');document.getElementById('addProductModal').style.display='none'">Add Product</button>
+              <button class="btn btn-outline" onclick="document.getElementById('addProductModal').style.display='none'">Cancel</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ORDERS PAGE -->
+      <div class="admin-page" id="page-orders">
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px">
+          ${[['All Orders','1,284','📋'],['Processing','47','⏳'],['Shipped','186','🚚'],['Delivered','1,051','✅']].map(([l,v,i])=>`
+          <div style="background:white;border-radius:var(--radius);padding:20px;border:1px solid var(--gray-200);text-align:center;box-shadow:var(--shadow-sm)">
+            <div style="font-size:28px;margin-bottom:8px">${i}</div>
+            <div style="font-family:var(--font-display);font-size:1.8rem;font-weight:800">${v}</div>
+            <div style="font-size:13px;color:var(--gray-600)">${l}</div>
+          </div>`).join('')}
+        </div>
+        <div class="table-card">
+          <div class="table-header">
+            <h3>Order Management</h3>
+            <button class="btn btn-ghost btn-sm">📥 Export</button>
+          </div>
+          <table class="admin-table">
+            <thead><tr><th>Order ID</th><th>Customer</th><th>Items</th><th>Total</th><th>Date</th><th>Status</th><th>Action</th></tr></thead>
+            <tbody id="ordersTable"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- CUSTOMERS PAGE -->
+      <div class="admin-page" id="page-customers">
+        <div class="table-card">
+          <div class="table-header"><h3>All Customers (8,432)</h3>
+          <input type="text" placeholder="Search customers..." style="padding:8px 14px;border:2px solid var(--gray-200);border-radius:var(--radius-sm);font-family:var(--font-body);font-size:13px;outline:none"></div>
+          <table class="admin-table">
+            <thead><tr><th>Customer</th><th>Orders</th><th>Total Spent</th><th>Joined</th><th>Status</th><th>Actions</th></tr></thead>
+            <tbody>
+              ${Array.from({length:10},(_,i)=>{const names=['Priya S.','Rahul M.','Ananya P.','Kiran K.','Meera R.','Arjun V.','Divya T.','Suresh N.','Kavya B.','Rohan D.'];return`<tr>
+                <td><div style="display:flex;align-items:center;gap:10px"><div style="width:36px;height:36px;background:hsl(${i*37},70%,50%);border-radius:50%;display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:14px">${names[i][0]}</div>${names[i]}</div></td>
+                <td>${Math.floor(Math.random()*20+1)}</td>
+                <td>₹${(Math.random()*50000+1000).toFixed(0)}</td>
+                <td>${['Jan','Feb','Mar','Apr'][Math.floor(Math.random()*4)]} 2025</td>
+                <td><span class="status-badge status-delivered">Active</span></td>
+                <td><button class="btn btn-ghost btn-sm" onclick="Toast.show('Viewing customer profile...','success')">View</button></td>
+              </tr>`}).join('')}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- COUPONS PAGE -->
+      <div class="admin-page" id="page-coupons">
+        <div style="display:flex;justify-content:flex-end;margin-bottom:24px">
+          <button class="btn btn-primary" onclick="Toast.show('Create coupon form opening...','success')">+ Create Coupon</button>
+        </div>
+        <div class="table-card">
+          <div class="table-header"><h3>Active Coupons</h3></div>
+          <table class="admin-table">
+            <thead><tr><th>Code</th><th>Discount</th><th>Uses</th><th>Expires</th><th>Status</th><th>Actions</th></tr></thead>
+            <tbody>
+              ${[['SAVE20','20%','432/500','Dec 31, 2025'],['FLAT10','10%','∞','Dec 31, 2025'],['WELCOME15','15%','1/1','First use only'],['SUMMER30','30%','87/200','Jun 30, 2025']].map(([code,disc,uses,exp])=>`<tr>
+                <td><code style="background:var(--gray-100);padding:4px 10px;border-radius:6px;font-size:14px;font-weight:700">${code}</code></td>
+                <td style="font-weight:700;color:var(--accent)">${disc}</td>
+                <td style="color:var(--gray-600)">${uses}</td>
+                <td>${exp}</td>
+                <td><span class="status-badge status-delivered">Active</span></td>
+                <td><div style="display:flex;gap:8px"><button class="btn btn-ghost btn-sm">✏️ Edit</button><button class="btn btn-ghost btn-sm" onclick="Toast.show('Coupon disabled','success')">🚫 Disable</button></div></td>
+              </tr>`).join('')}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- INVENTORY PAGE -->
+      <div class="admin-page" id="page-inventory">
+        <div class="table-card">
+          <div class="table-header">
+            <h3>Inventory Status</h3>
+            <div style="display:flex;gap:12px;align-items:center">
+              <span style="font-size:13px;color:var(--accent)">⚠️ 3 low stock items</span>
+              <button class="btn btn-ghost btn-sm">Export</button>
+            </div>
+          </div>
+          <table class="admin-table">
+            <thead><tr><th>Product</th><th>SKU</th><th>Stock</th><th>Threshold</th><th>Status</th><th>Actions</th></tr></thead>
+            <tbody>
+              ${PRODUCTS.map(p=>{const low=p.stock<20;return`<tr>
+                <td>${p.name.substring(0,30)}</td>
+                <td style="color:var(--gray-400);font-size:13px">SW-${String(p.id).padStart(4,'0')}</td>
+                <td><span style="font-weight:700;color:${low?'var(--accent)':'var(--success)'}">${p.stock}</span></td>
+                <td>20</td>
+                <td><span class="status-badge ${low?'status-cancelled':'status-delivered'}">${low?'Low Stock':'In Stock'}</span></td>
+                <td><button class="btn btn-outline btn-sm" onclick="Toast.show('Restocking form opening...','success')">+ Restock</button></td>
+              </tr>`}).join('')}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<div id="toastHolder"></div>
+<script src="js/app.js"></script>
+<script>
+function showPage(page, navItem) {
+  document.querySelectorAll('.admin-page').forEach(p => p.classList.remove('active'));
+  document.getElementById(`page-${page}`).classList.add('active');
+  document.querySelectorAll('.admin-nav-item').forEach(n => n.classList.remove('active'));
+  if (navItem) navItem.classList.add('active');
+  const titles = { dashboard:'Dashboard', products:'Product Management', orders:'Order Management', customers:'Customer Management', coupons:'Coupon Management', inventory:'Inventory' };
+  document.getElementById('pageTitle').textContent = titles[page]||'Admin';
+  document.getElementById('pageSub').textContent = `ShopWave Admin Panel`;
+}
+
+function showAddProduct() {
+  document.getElementById('addProductModal').style.display = 'block';
+}
+
+// Recent orders
+const mockOrders = [
+  {id:'SW20240101',customer:'Priya Sharma',amount:3798,status:'delivered',date:'Today'},
+  {id:'SW20240102',customer:'Rahul Mehta',amount:5999,status:'shipped',date:'Yesterday'},
+  {id:'SW20240103',customer:'Ananya Patel',amount:2497,status:'processing',date:'Jan 3'},
+  {id:'SW20240104',customer:'Kiran Kumar',amount:1299,status:'delivered',date:'Jan 2'},
+  {id:'SW20240105',customer:'Meera Singh',amount:8999,status:'processing',date:'Jan 1'},
+];
+
+document.getElementById('recentOrdersTable').innerHTML = mockOrders.map(o => `<tr>
+  <td><a href="#" style="color:var(--accent);font-weight:600">#${o.id}</a></td>
+  <td>${o.customer}</td>
+  <td style="font-weight:700">${formatPrice(o.amount)}</td>
+  <td><span class="status-badge status-${o.status}">${o.status.toUpperCase()}</span></td>
+</tr>`).join('');
+
+document.getElementById('ordersTable').innerHTML = [...mockOrders,...mockOrders].map((o,i) => `<tr>
+  <td><a href="#" style="color:var(--accent);font-weight:600">#${o.id}${i}</a></td>
+  <td>${o.customer}</td>
+  <td>${Math.floor(Math.random()*3)+1}</td>
+  <td style="font-weight:700">${formatPrice(o.amount)}</td>
+  <td>${o.date}</td>
+  <td><span class="status-badge status-${o.status}">${o.status.toUpperCase()}</span></td>
+  <td>
+    <select style="padding:4px 8px;border:1px solid var(--gray-200);border-radius:6px;font-size:12px;cursor:pointer" onchange="Toast.show('Order status updated! ✅','success')">
+      <option>Processing</option><option>Shipped</option><option>Delivered</option><option>Cancelled</option>
+    </select>
+  </td>
+</tr>`).join('');
+
+// Charts
+const revenueCtx = document.getElementById('revenueChart').getContext('2d');
+new Chart(revenueCtx, {
+  type:'line',
+  data:{
+    labels:['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],
+    datasets:[{
+      label:'Revenue (₹)',
+      data:[12400,18200,15800,24600,21300,31200,28900],
+      borderColor:'#e63946',fill:true,
+      backgroundColor:'rgba(230,57,70,0.08)',
+      tension:0.4,pointBackgroundColor:'#e63946',pointRadius:5,borderWidth:2
+    }]
+  },
+  options:{responsive:true,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,ticks:{callback:v=>'₹'+v.toLocaleString('en-IN')}}}}
+});
+
+const catCtx = document.getElementById('categoryChart').getContext('2d');
+new Chart(catCtx, {
+  type:'doughnut',
+  data:{
+    labels:['Electronics','Fashion','Sports','Home','Other'],
+    datasets:[{data:[35,28,18,12,7],backgroundColor:['#e63946','#4cc9f0','#ffd166','#06d6a0','#adb5bd'],borderWidth:0}]
+  },
+  options:{responsive:true,plugins:{legend:{position:'bottom',labels:{font:{size:12}}}}}
+});
+</script>
+</body>
+</html>
