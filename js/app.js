@@ -236,4 +236,17 @@ function startCountdown(elementId, hours=8, minutes=34, seconds=12) {
 }
 
 // Init on load
-document.addEventListener('DOMContentLoaded', () => { Cart.updateUI(); });
+document.addEventListener('DOMContentLoaded', () => {
+  Cart.updateUI();
+
+  document.querySelectorAll('a').forEach(link => {
+    link.addEventListener('click', e => {
+      if (link.hash) {
+        e.preventDefault();
+        document.querySelector(link.hash)?.scrollIntoView({
+          behavior: 'smooth'
+        });
+      }
+    });
+  });
+});
