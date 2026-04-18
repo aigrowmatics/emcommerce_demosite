@@ -36,6 +36,10 @@ p {
   line-height: 1.7;
 }
 a { text-decoration: none; color: inherit; }
+.text-xl { font-size: 1.25rem; }
+.font-bold { font-weight: 700; }
+.tracking-tight { letter-spacing: -0.02em; }
+.text-indigo-600 { color: var(--primary); }
 
 /* ===== UTILITIES ===== */
 .container { max-width: 1280px; margin: 0 auto; padding: 0 24px; }
@@ -106,8 +110,10 @@ section {
 .nav { border-top: 1px solid var(--gray-200); }
 .nav-inner { display: flex; align-items: center; gap: 4px; max-width: 1280px; margin: 0 auto; padding: 0 24px; overflow-x: auto; scrollbar-width: none; }
 .nav-inner::-webkit-scrollbar { display: none; }
-.nav-link { padding: 12px 16px; font-family: var(--font-display); font-size: 13px; font-weight: 600; color: var(--gray-600); white-space: nowrap; transition: var(--transition); border-bottom: 2px solid transparent; }
-.nav-link:hover, .nav-link.active { color: var(--accent); border-bottom-color: var(--accent); }
+.nav-link { position: relative; padding: 12px 16px; font-family: var(--font-display); font-size: 13px; font-weight: 600; color: var(--gray-600); white-space: nowrap; transition: color 0.25s ease; }
+.nav-link .nav-underline { position: absolute; left: 0; bottom: 0; width: 0; height: 2px; background: var(--accent); transition: width 0.25s ease; }
+.nav-link:hover, .nav-link.active { color: var(--accent); }
+.nav-link:hover .nav-underline, .nav-link.active .nav-underline { width: 100%; }
 
 /* ===== HERO ===== */
 .hero {
